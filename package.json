@@ -14,7 +14,12 @@
 		"build-self-contained": "ui5 build self-contained -a --clean-dest",
 		"serve-dist": "ws --compress -d dist"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@openui5/sap.f": "^1.102.0",
+		"@openui5/sap.m": "^1.102.0",
+		"@openui5/sap.ui.core": "^1.102.0",
+		"@openui5/themelib_sap_fiori_3": "^1.102.0"
+	},
 	"devDependencies": {
 		"@ui5/cli": "^2.14.9",
 		"eslint": "^7.32.0",
