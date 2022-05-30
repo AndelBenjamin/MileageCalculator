@@ -1,0 +1,55 @@
+<mvc:View 
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:core="sap.ui.core" 
+	xmlns="sap.m" 
+	xmlns:f="sap.f" 
+	controllerName="sap.ui.demo.todo.controller.App" 
+	displayBlock="true">
+		<App>
+			<Page>
+				<customHeader>
+					<f:ShellBar core:require="{ Helper: 'sap/ui/demo/todo/util/Helper' }" title="{i18n>TITLE}" homeIcon="{:= Helper.resolvePath('./img/logo_ui5.png') }" />
+				</customHeader>
+				
+				<content>
+					<f:DynamicPage>
+						<f:header>
+							<f:DynamicPageHeader pinnable="false">
+								<ComboBox xmlns="sap.m" value="{/newAddress}" items="{/companyAddress}">
+									<items>
+										<core:Item xmlns:core="sap.ui.core" 
+												key="{Key}" 
+												text="{Name}"
+												/>
+									</items>
+								</ComboBox>
+								<Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${undefined})"></Button>
+								<Button text="{i18n>CALCULATE_DISTANCE_BUTTON_LABEL}" press=".calculateMilage"></Button>
+								<Button text="{i18n>ADD_CURRENT_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation"></Button>
+								<Button text="{i18n>RESET_BUTTON_LABEL}" press=".resetAddressNodes"></Button>
+								<HBox>
+									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
+									<Input class="todoInput" value="{/homeAddress}"/>
+								</HBox>
+								<HBox>
+									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
+									<Input class="todoInput" value="{/workAddress}"/>
+								</HBox>
+							</f:DynamicPageHeader>
+						</f:header>
+						<f:content >
+							<mvc:XMLView viewName="sap.ui.demo.todo.view.AddressNodeList"/>
+						</f:content>
+					</f:DynamicPage>
+				</content>
+				<footer>
+					<OverflowToolbar id="toolbar-footer" visible="{= !!${view>/isMobile} }">
+						<VBox>
+							<Text class="InputLabel" text="Reporter {/andelMileageReport}km til Andel."/>
+							<Text class="InputLabel" text="Reporter {/skatMileageReport}km til Skat."/>
+						</VBox>
+					</OverflowToolbar>
+				</footer>
+			</Page>
+		</App>
+</mvc:View>

@@ -1,0 +1,60 @@
+{
+	"newAddress": "",
+	"homeAddress": "Holbæk",
+	"workAddress": "Svinninge",
+	"workDistance": 0,
+	"andelMileageReport": 0,
+	"skatMileageReport": 0,
+	"addressNodes": [{
+		"Key": 0,
+		"Name": "",
+		"Address": "",
+		"Distance": 0
+	}],
+	"allAddresses": [],
+	"companyAddress": [{
+		"Key": "Virum",
+		"Name": "Virum afdelingen",
+		"MainAddress": "Teknikerbyen 25, 2830 Virum",
+		"Addresses": [
+			{
+				"Name": "Seas-nve",
+				"Address": "Teknikerbyen 25, 2830 Virum",
+				"Latitude": 55.8010871,
+				"Longitude": 12.4978307
+			},
+			{
+				"Name": "RF2X+93V Virum",
+				"Address": "Teknikerbyen 27, 2830 Virum",
+				"Latitude": 55.8010871,
+				"Longitude": 12.4978307
+			}
+		]
+	}, 
+	{
+		"Key": "Haslev",
+		"Name": "Haslev afdelingen",
+		"MainAddress": "Energivej 33, 4690 Haslev",
+		"Addresses": [
+			{
+				"Name": "Andel Holding A/S Teknisk afdeling",
+				"Address": "Energivej 33, 4690 Haslev",
+				"Latitude": 55.33237,
+				"Longitude": 11.96408
+			}
+		]
+	},
+    {
+		"Key": "Svinninge",
+		"Name": "Svinninge afdelingen",
+		"MainAddress": "Hovedgaden 36, 4520 Svinninge",
+		"Addresses": [
+			{
+				"Name": "Andel Holding A/S",
+				"Address": "Hovedgaden 36, 4520 Svinninge",
+				"Latitude": 55.72263,
+				"Longitude": 11.46417
+			}
+		]
+	}]
+}

@@ -1,0 +1,50 @@
+<mvc:View 
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:core="sap.ui.core" 
+	xmlns="sap.m" 
+	xmlns:f="sap.f" 
+	controllerName="sap.ui.demo.todo.controller.App" 
+	displayBlock="true">
+    <Panel id="mileageCalculatorAddressListPanel"
+    headerText="{i18n>ADDRESS_LIST_TITLE}"
+      class="sapUiResponsiveMargin mileageCalculatorAddressListPanel"
+      width="auto" >
+        <List id="mileageCalculatorAddressList"
+            items="{ path: '/addressNodes'}"
+            mode="None"
+            growing="true"
+            growingScrollToLoad="true"
+            showNoData="false"
+            showSeparators="None"
+            width="500px">
+            <CustomListItem>
+                <FlexBox class="distanceField"
+                    alignItems="Center"
+                    justifyContent="Center">
+                    <Input class="distanceInput" value="{Distance}" width = "70px"  visible="{= !!${Key}}" />
+                    <Text class="distanceUnitLabel" text="Km" textAlign="Center" visible="{= !!${Key}}"/>
+                </FlexBox>
+                <FlexBox class="addressNode"
+                    alignItems="Center"
+                    justifyContent="Center">
+                        <Button text="{i18n>REMOVE_NODE_BUTTON_LABEL}" press=".removeAddressNode(${Key})"></Button>
+                        <!-- <ComboBox xmlns="sap.m" items="{/allAddresses}" value="{/newAddress}" selectedKey="{Key}" change=".updateDistance(${Key})">
+                            <items>
+                                <core:Item xmlns:core="sap.ui.core" 
+                                        key="{Key}" 
+                                        text="{Name}"
+                                        
+                                        />
+                            </items>
+                        </ComboBox> -->
+                        <Input class="todoInput" value="{Name}" change=".updateDistance(${Key})"/>
+                </FlexBox>
+                <FlexBox class="distanceField"
+                    alignItems="Start"
+                    justifyContent="End">
+                <Button class="addAddress" text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${Key})"></Button>
+                </FlexBox>
+            </CustomListItem>
+        </List>
+    </Panel>
+</mvc:View>

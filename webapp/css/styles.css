@@ -1,0 +1,32 @@
+/* Strikes through the completed items */
+li[data-todo-item-completed="true"] span {
+	text-decoration: line-through;
+}
+
+.InputLabel {
+	margin:auto;
+	font-size: medium;
+	font-weight: bold;
+}
+
+.distanceInput {
+	width: 70px;
+}
+
+.addressNode{
+	display: flex;
+}
+
+.distanceUnitLabel{
+	font-size: small;
+	font-weight: bold;
+	text-align: center;    
+	display: flex;
+	flex-direction: column-reverse;
+}
+
+.mileageCalculatorAddressListPanel{ 
+	align-items: center;
+    justify-content: center;
+    display: grid;
+}

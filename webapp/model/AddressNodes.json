@@ -1,0 +1,16 @@
+{
+	"address": [{
+		"Key": "Virum",
+		"Name": "Virum"
+	}, 
+	{
+		"Key": "Haslev",
+		"Name": "Haslev"
+	},
+    {
+		"Key": "Svinninge",
+		"Name": "Svinninge"
+	}],
+	"itemsRemovable": true,
+	"newNode": ""
+}

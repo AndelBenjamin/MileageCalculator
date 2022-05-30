@@ -1,0 +1,17 @@
+<mvc:View 
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:core="sap.ui.core" 
+	xmlns="sap.m" 
+	xmlns:f="sap.f" 
+	controllerName="sap.ui.demo.todo.controller.App" 
+	displayBlock="true">
+    <Panel>
+        <HBox class="addressNode">
+            <Button text="{i18n>REMOVE_NODE_BUTTON_LABEL}" press=".removeAddressNode(${Key})"></Button>
+            <Input class="todoInput" value="{Name}" change=".updateDistance(${Key})"/>
+            <Input class="distanceInput" value="{Distance}" />
+            <Text class="distanceUnitLabel" text="Km" />
+        </HBox>
+        <Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${Key})"></Button>
+    </Panel>
+</mvc:View>

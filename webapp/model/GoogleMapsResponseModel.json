@@ -1,0 +1,26 @@
+{
+    "destination_addresses": [
+        "2830 Virum, Denmark"
+    ],
+    "origin_addresses": [
+        "Østergade 28, 3400 Hillerød, Denmark"
+    ],
+    "rows": [
+        {
+            "elements": [
+                {
+                    "distance": {
+                        "text": "13.0 mi",
+                        "value": 20907
+                    },
+                    "duration": {
+                        "text": "27 mins",
+                        "value": 1618
+                    },
+                    "status": "OK"
+                }
+            ]
+        }
+    ],
+    "status": "OK"
+}
