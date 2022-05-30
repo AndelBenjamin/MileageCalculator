@@ -33,11 +33,11 @@ sap.ui.define([
 			}
 			
 			var lastAddress = addressList[addressList.length-1];
-			if(!key && key!=0) key = !!lastAddress && !!lastAddress.Key ? lastAddress.Key : 0 //default to 0 if no value is given as key
-			const insertIndex = addressList.length == 0 ? 0 : addressList.map(e => e.Key).indexOf(key)+1;
+			if(!key && key!=0) key = !!lastAddress && !!lastAddress.Key ? lastAddress.Key : 0; //default to 0 if no value is given as key
+			var insertIndex = addressList.length == 0 ? 0 : addressList.map(e => e.Key).indexOf(key)+1;
 
 			var newAddress = oModel.getProperty("/newAddress");
-			const companyAddress = oModel.getProperty("/companyAddress").find(e => e.Name == newAddress)
+			var companyAddress = oModel.getProperty("/companyAddress").find(e => e.Name == newAddress)
 			var newAddressNode = {
 				"Key": insertIndex,
 				"Name": companyAddress ? companyAddress.Name : newAddress,
