@@ -40,7 +40,7 @@ sap.ui.define([
 			var companyAddress = oModel.getProperty("/companyAddress").find(e => e.Name == newAddress)
 			var newAddressNode = {
 				"Key": insertIndex,
-				"Name": newAddress,
+				"Name": companyAddress ? companyAddress.MainAddress : newAddress,
 				"Address": companyAddress ? companyAddress.MainAddress : newAddress
 			}
 
@@ -205,7 +205,7 @@ sap.ui.define([
 			var companyList = oModel.getProperty("/companyAddress");
 
 			var homeNode = oModel.getProperty("/homeAddress");
-			var workPlace = oModel.getProperty("/workAddress"); // I don't think this matters
+			var workPlace = oModel.getProperty("/workAddress");
 			var homeWorkDistance = await this.getDistanceKm(homeNode,workPlace).then(distance => this.getView().getModel().setProperty("/workDistance",distance))
 			var homeWorkDistance = oModel.getProperty("/workDistance");
 
