@@ -40,7 +40,7 @@ sap.ui.define([
 			var companyAddress = oModel.getProperty("/companyAddress").find(e => e.Name == newAddress)
 			var newAddressNode = {
 				"Key": insertIndex,
-				"Name": companyAddress ? companyAddress.Name : newAddress,
+				"Name": newAddress,
 				"Address": companyAddress ? companyAddress.MainAddress : newAddress
 			}
 
@@ -154,7 +154,7 @@ sap.ui.define([
 			this.calculateMilage()
 		},
 		getAddress: function(node) {
-			return node.Address ? node.Address : node.Name;
+			return node.Name; //node.Address ? node.Address : node.Name;
 		},
 		cleanNodes: function(){
 			function cleanNode(node, index){
@@ -249,39 +249,6 @@ sap.ui.define([
 				});
 
 				return response.json();
-		},
-		latLonDistanceKm: function (lat1,long1,lat2,long2){
-			function toRadians(degree)
-			{
-				return Math.PI / 180;
-			}
-			// Convert the latitudes
-			// and longitudes
-			// from degree to radians.
-			lat1 = toRadians(lat1);
-			long1 = toRadians(long1);
-			lat2 = toRadians(lat2);
-			long2 = toRadians(long2);
-
-			// Haversine Formula
-			const dlong = long2 - long1;
-			const dlat = lat2 - lat1;
-
-			var ans = pow(sin(dlat / 2), 2) +
-						cos(lat1) * cos(lat2) *
-						pow(sin(dlong / 2), 2);
-
-			ans = 2 * asin(sqrt(ans));
-
-			// Radius of Earth in
-			// Kilometers, R = 6371
-			// Use R = 3956 for miles
-			const R = 6371;
-
-			// Calculate the result
-			ans = ans * R;
-
-			return ans;
 		},
 		locationCallback: function(result,view){
 			console.log(result);
