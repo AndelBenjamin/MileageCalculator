@@ -113,6 +113,7 @@ sap.ui.define([
 			if(model['homeAddress']) oModel.setProperty("/homeAddress",model['homeAddress'])
 			if(model['workAddress']) oModel.setProperty("/workAddress",model['workAddress'])
 			if(model['addressNodes']) oModel.setProperty("/addressNodes",model['addressNodes'])
+			if(model['registrationNumber']) oModel.setProperty("/registrationNumber",model['registrationNumber'])
 			this.populateAllAddresses()
 		},
 		requestDistanceMatrix: async (origins,destinations) => {
