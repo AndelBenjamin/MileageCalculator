@@ -214,17 +214,17 @@ sap.ui.define([
 				distanceEdges.push(createDistance(addressNodes[i],addressNodes[i+1]))
 			}
 
-			var companyAddresses = companyList.flatMap(e => e.Addresses.map(address => address.Address))
-									.concat(companyList.map(e => e.Name))
-									.concat(companyList.map(e => e.Key))
-									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name)));
-			companyAddresses.push(homeNode);
-			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress) && companyAddresses.includes(edge.DestinationAddress))
+			var companyAddresses = companyList.flatMap(e => e.Addresses.map(address => address.Address.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Name.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Key.replace(/\W+/gi,'+')))
+									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name.replace(/\W+/gi,'+'))));
+			companyAddresses.push(homeNode.replace(/\W+/gi,'+'));
+			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
 			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
-			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress == homeNode || edge.DestinationAddress == homeNode)
+			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
 	
-			var taxMileageReport =  workEdges.length > 0 ? Math.min(2,workToHomeTrips.length) * homeWorkDistance : 0;
-			var workDistance = workEdges.length > 0 ? workEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) - taxMileageReport: 0;
+			var taxMileageReport =  workEdges.length > 0 ? Math.min(2,workToHomeTrips.length) * homeWorkDistance: 0;
+			var workDistance = workEdges.length > 0 ? Math.max(workEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) - taxMileageReport,0) : 0;
 			var nonWorkDistance = nonWorkEdges.length > 0 ? nonWorkEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) : 0;
 			var andelMileageReport = workDistance + nonWorkDistance; 
 
