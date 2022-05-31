@@ -195,8 +195,8 @@ sap.ui.define([
 		calculateMilage : async function (){
 			function createDistance(startNode,destinationNode){
 				return {
-					"StartAddress": startNode.Address ? startNode.Address : startNode.Name,
-					"DestinationAddress": destinationNode.Address ? destinationNode.Address : destinationNode.Name,
+					"StartAddress": startNode.Name, // startNode.Address ? startNode.Address : startNode.Name,
+					"DestinationAddress": destinationNode.Name, //destinationNode.Address ? destinationNode.Address : destinationNode.Name,
 					"Distance": destinationNode.Distance
 				}
 			}
