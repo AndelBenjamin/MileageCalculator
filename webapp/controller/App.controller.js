@@ -79,6 +79,25 @@ sap.ui.define([
 			oModel.setProperty("/addressNodes", []);
 			this.saveModelToCookie();
 		},
+		copyNodes: function () {
+			var oModel = this.getView().getModel();
+
+			var workEdges = this.getEdges().WorkEdges;
+			var now = new Date();
+			var currentDate = `${now.getDay()}.${now.getMonth()}.${now.getFullYear()}`
+			var registrationNumber = oModel.getProperty('/registrationNumber')
+			var output = workEdges
+							.map(edge => `${currentDate}\t${edge.Distance}\t${registrationNumber}\t${edge.StartAddress}\t${edge.DestinationAddress}`)
+							.reduce((acc,current) => acc+'\n'+current)
+
+			navigator
+				.clipboard
+				.writeText(output)
+				.then(
+					success => console.log("text copied"), 
+					err => console.log("error copying text")
+				);
+		},
 		saveModelToCookie: function () {
 			document.cookie = `calculatorModel=${this.getView().getModel().getJSON()}`
 		},
@@ -191,6 +210,36 @@ sap.ui.define([
 					.then(distance => this.distanceCallBack(distance,addressNodes[indexOfNode+1].Key));
 			
 			oModel.setProperty("/addressNodes", addressNodes);
+		},
+		getEdges: function (){
+			function createDistance(startNode,destinationNode){
+				return {
+					"StartAddress": startNode.Name, // startNode.Address ? startNode.Address : startNode.Name,
+					"DestinationAddress": destinationNode.Name, //destinationNode.Address ? destinationNode.Address : destinationNode.Name,
+					"Distance": destinationNode.Distance
+				}
+			}
+			var oModel = this.getView().getModel();
+			var addressNodes = oModel.getProperty("/addressNodes");
+			var companyList = oModel.getProperty("/companyAddress");
+
+			var homeNode = oModel.getProperty("/homeAddress");
+
+			var distanceEdges = [];
+			for(let i = 0; i < addressNodes.length-1; i++){
+				distanceEdges.push(createDistance(addressNodes[i],addressNodes[i+1]))
+			}
+
+			var companyAddresses = companyList.flatMap(e => e.Addresses.map(address => address.Address.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Name.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Key.replace(/\W+/gi,'+')))
+									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name.replace(/\W+/gi,'+'))));
+			companyAddresses.push(homeNode.replace(/\W+/gi,'+'));
+			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
+			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
+			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
+			
+			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': workToHomeTrips}
 		},
 		calculateMilage : async function (){
 			function createDistance(startNode,destinationNode){

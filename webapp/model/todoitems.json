@@ -5,6 +5,7 @@
 	"workDistance": 0,
 	"andelMileageReport": 0,
 	"skatMileageReport": 0,
+	"registrationNumber": "",
 	"addressNodes": [{
 		"Key": 0,
 		"Name": "",

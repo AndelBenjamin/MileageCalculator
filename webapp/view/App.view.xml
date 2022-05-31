@@ -15,6 +15,13 @@
 					<f:DynamicPage>
 						<f:header>
 							<f:DynamicPageHeader pinnable="false">
+								<HBox >	
+									<Button text="{i18n>CALCULATE_DISTANCE_BUTTON_LABEL}" press=".calculateMilage"></Button>
+									<Button text="{i18n>ADD_CURRENT_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation"></Button>
+									<Button text="{i18n>REGISTER_IN_SAP_BUTTON_LABEL}" press=".calculateMilage"></Button>
+									<Button text="{i18n>COPY_NODES_BUTTON_LABEL}" press=".copyNodes"></Button>
+									<Button text="{i18n>RESET_BUTTON_LABEL}" press=".resetAddressNodes"></Button>
+								</HBox>
 								<ComboBox xmlns="sap.m" value="{/newAddress}" items="{/companyAddress}">
 									<items>
 										<core:Item xmlns:core="sap.ui.core" 
@@ -24,9 +31,6 @@
 									</items>
 								</ComboBox>
 								<Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${undefined})"></Button>
-								<Button text="{i18n>CALCULATE_DISTANCE_BUTTON_LABEL}" press=".calculateMilage"></Button>
-								<Button text="{i18n>ADD_CURRENT_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation"></Button>
-								<Button text="{i18n>RESET_BUTTON_LABEL}" press=".resetAddressNodes"></Button>
 								<HBox>
 									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
 									<Input class="todoInput" value="{/homeAddress}"/>
@@ -34,6 +38,10 @@
 								<HBox>
 									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
 									<Input class="todoInput" value="{/workAddress}"/>
+								</HBox>
+								<HBox>
+									<Text class="InputLabel" text="{i18n>REGISTRATION_NUMBER_LABEL}"/>
+									<Input class="todoInput" value="{/registrationNumber}"/>
 								</HBox>
 							</f:DynamicPageHeader>
 						</f:header>
