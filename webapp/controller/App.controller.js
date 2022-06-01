@@ -81,12 +81,12 @@ sap.ui.define([
 		},
 		copyNodes: function () {
 			var oModel = this.getView().getModel();
-
-			var workEdges = this.getEdges().WorkEdges;
+			var edges = this.getEdges();
+			var outputEdges = edges.WorkEdges.filter(edge => edges.TaxEdges.map(taxEdge => taxEdge != edge).reduce((acc, e) => acc && e)).concat(edges.NonWorkEdges);
 			var now = new Date();
 			var currentDate = `${now.getDay()}.${now.getMonth()}.${now.getFullYear()}`
 			var registrationNumber = oModel.getProperty('/registrationNumber')
-			var output = workEdges
+			var output = outputEdges
 							.map(edge => `${currentDate}\t${edge.Distance}\t${registrationNumber}\t${edge.StartAddress}\t${edge.DestinationAddress}`)
 							.reduce((acc,current) => acc+'\n'+current)
 
@@ -225,6 +225,7 @@ sap.ui.define([
 			var companyList = oModel.getProperty("/companyAddress");
 
 			var homeNode = oModel.getProperty("/homeAddress");
+			var workPlace = oModel.getProperty("/workAddress");
 
 			var distanceEdges = [];
 			for(let i = 0; i < addressNodes.length-1; i++){
@@ -239,8 +240,9 @@ sap.ui.define([
 			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
 			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
 			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
+			var taxAbleEdges = workToHomeTrips.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+'))
 			
-			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': workToHomeTrips}
+			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges}
 		},
 		calculateMilage : async function (){
 			function createDistance(startNode,destinationNode){
