@@ -79,17 +79,29 @@ sap.ui.define([
 			oModel.setProperty("/addressNodes", []);
 			this.saveModelToCookie();
 		},
-		copyNodes: function () {
+		copyNodes: async function () {
 			var oModel = this.getView().getModel();
+			var homeDistance = oModel.getProperty("/workDistance")
+			await this.calculateMilage().then(r => homeDistance = oModel.getProperty("/workDistance"))
 			var edges = this.getEdges();
-			var outputEdges = edges.WorkEdges.filter(edge => edges.TaxEdges.map(taxEdge => taxEdge != edge).reduce((acc, e) => acc && e)).concat(edges.NonWorkEdges);
+			var edgesToSubTaxDistanceFrom = Math.max(2 - edges.TaxEdges.length,0)
+			var workEdges = edges.WorkEdges.map(edge => {
+				if (edgesToSubTaxDistanceFrom > 0 && edges.HomeEdge.includes(edge)){
+					edgesToSubTaxDistanceFrom -= 1
+					edge.Distance = edge.Distance - homeDistance 
+				}
+				return edge;
+			});
+			var outputEdges = workEdges.filter(edge => edges.TaxEdges.map(taxEdge => taxEdge != edge).reduce((acc, e) => acc && e)).concat(edges.NonWorkEdges);
+			
+			//format output
 			var now = new Date();
 			var currentDate = `${now.getDay()}.${now.getMonth()}.${now.getFullYear()}`
 			var registrationNumber = oModel.getProperty('/registrationNumber')
 			var output = outputEdges
-							.map(edge => `${currentDate}\t${edge.Distance}\t${registrationNumber}\t${edge.StartAddress}\t${edge.DestinationAddress}`)
+							.map(edge => `${currentDate}\t${(Math.round(edge.Distance*1000)/1000).toString().replace('.',',')}\t${registrationNumber}\t${edge.StartAddress}\t${edge.DestinationAddress}`)
 							.reduce((acc,current) => acc+'\n'+current)
-
+			
 			navigator
 				.clipboard
 				.writeText(output)
@@ -212,6 +224,9 @@ sap.ui.define([
 			
 			oModel.setProperty("/addressNodes", addressNodes);
 		},
+		compareAddresses: function (a1, a2){
+			return a1.replace(/\W+/gi,'+') == a2.replace(/\W+/gi,'+')
+		},
 		getEdges: function (){
 			function createDistance(startNode,destinationNode){
 				return {
@@ -242,7 +257,7 @@ sap.ui.define([
 			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
 			var taxAbleEdges = workToHomeTrips.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+'))
 			
-			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges}
+			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges, 'HomeEdge': workToHomeTrips}
 		},
 		calculateMilage : async function (){
 			function createDistance(startNode,destinationNode){
