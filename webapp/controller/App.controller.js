@@ -319,23 +319,27 @@ sap.ui.define([
 			console.log(result);
 			const location = result.results.map(e => this.findMatchingCompanyAddress(e)).find(e => !!e)
 			var oModel = view.getModel();
-			oModel.setProperty("/newAddress",location.MainAddress);
+			oModel.setProperty("/newAddress", !!location ? location.MainAddress : result.results[0].formatted_address);
 			this.addAddressNode(undefined);
 
 		},
 		findMatchingCompanyAddress: function(addressResult){
 			function internalNameMatch(companyList,name){
+				if (!companyAddresses || !name) return match
 				return companyList.find( e => e?.Addresses?.find(subE => subE.Name == name || subE.Address == name))
 			}
 			function isWithinBounds(geometry, latitude, longitude){
-				if (!geometry) return false;
+				if (!geometry || !geometry.northeast || !geometry.southWest) return false;
 
-				const offset = 0.01;
+				const offset = 0.005;
 				var northEast = geometry.northeast
 				var southWest = geometry.southwest
 				return (latitude <= northEast.lat+offset && latitude >= southWest.lat-offset) 
 						&& (longitude <= northEast.lng+offset && longitude >= southWest.lng-offset)
 			}
+			
+			if(!!addressResult?.geometry?.bounds) return false;
+
 			var oModel = this.getView().getModel();
 			var companyAddresses = oModel.getProperty("/companyAddress");
 			var subCode = addressResult?.address_components?.find(e => e.types.includes('plus_code'))
