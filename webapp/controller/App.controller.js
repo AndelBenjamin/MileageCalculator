@@ -129,10 +129,6 @@ sap.ui.define([
 			this.populateAllAddresses()
 		},
 		requestDistanceMatrix: async (origins,destinations) => {
-			// var config = new JSONModel("../config/googleCloudPlatform.json")
-			function urlStrip(str){
-				return str.replace(/\W+/gi,'+');
-			}
 			const formattedOrigins = origins[0]//.map(e => urlStrip(e))[0]//.join('","');
 			const formattedDestinations = destinations[0]//.map(e => urlStrip(e))[0]//.join('","');
 			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
