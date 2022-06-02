@@ -129,19 +129,21 @@ sap.ui.define([
 			this.populateAllAddresses()
 		},
 		requestDistanceMatrix: async (origins,destinations) => {
-			var config = new JSONModel("../config/googleCloudPlatform.json")
+			// var config = new JSONModel("../config/googleCloudPlatform.json")
 			function urlStrip(str){
 				return str.replace(/\W+/gi,'+');
 			}
-			const formattedOrigins = origins.map(e => urlStrip(e)).join('","');
-			const formattedDestinations = destinations.map(e => urlStrip(e)).join('","');
-			const apiUrl = 'https://maps.googleapis.com/maps/api/';
-			const distanceMatrixRoute = 'distancematrix/json?language=en-US&units=metric&origins={"'+formattedOrigins+'"}&destinations={"'+formattedDestinations+'"}';
-			const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4';
-			const response = await fetch(apiUrl+distanceMatrixRoute+'&key='+apiKey, {
+			const formattedOrigins = origins[0]//.map(e => urlStrip(e))[0]//.join('","');
+			const formattedDestinations = destinations[0]//.map(e => urlStrip(e))[0]//.join('","');
+			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
+			// const distanceMatrixRoute = 'distancematrix/json?language=en-US&units=metric&origins={"'+formattedOrigins+'"}&destinations={"'+formattedDestinations+'"}';
+			// const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4';
+			var url = `https://mileagecalculatorapi.azurewebsites.net/api/maps/distancematrix?origins=${formattedOrigins}&destinations=${formattedDestinations}`;
+			
+			const response = await fetch(url, {
 			  method: 'GET',
 			  headers: {
-			   		"Accept": "*/*",
+			   		"Accept": "*",
 					"Host": "maps.googleapis.com",
 			  		"Accept-Encoding": "gzip, deflate, br",
 			  		"Connection": "keep-alive"
@@ -301,17 +303,18 @@ sap.ui.define([
 			console.log('Andel distance:'+andelMileageReport+' ## Skat distance:'+taxMileageReport)
 		},
 		requestGeocode: async function(latitude,longitude){
-			var config = new JSONModel("../config/googleCloudPlatform.json")
-			const apiUrl = 'https://maps.googleapis.com/maps/api/';
-				const geolocationRoute = `geocode/json?latlng=${latitude},${longitude}`;
-				const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4'//config.getProperty('/googleMapsApiKey');
-				const response = await fetch(apiUrl+geolocationRoute+'&key='+apiKey, {
+			const proxyUrl = "https://mileagecalculatorapi.azurewebsites.net";
+			const path = `api/maps/geocode`;
+			const query = `?lat=${latitude}&lng=${longitude}`;
+			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
+			// 	const geolocationRoute = `geocode/json?latlng=${latitude},${longitude}`;
+			// 	const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4'//config.getProperty('/googleMapsApiKey');
+				const response = await fetch(`${proxyUrl}/${path}${query}`, {
 				method: 'GET',
 				headers: {
 						"Accept": "*/*",
-						"Host": "maps.googleapis.com",
 						"Accept-Encoding": "gzip, deflate, br",
-						"Connection": "keep-alive"
+						"Connection": "keep-alive",
 					}
 				});
 
