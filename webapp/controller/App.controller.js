@@ -140,7 +140,6 @@ sap.ui.define([
 			  method: 'GET',
 			  headers: {
 			   		"Accept": "*",
-					"Host": "maps.googleapis.com",
 			  		"Accept-Encoding": "gzip, deflate, br",
 			  		"Connection": "keep-alive"
 				}
