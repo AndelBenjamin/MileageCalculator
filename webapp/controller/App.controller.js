@@ -60,8 +60,10 @@ sap.ui.define([
 		removeAddressNode: function (key){
 			var oModel = this.getView().getModel();
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
-			var newAddressList = addressList.filter( e => e.Key != key)
+			var newAddressList = addressList.filter( e => e.Key != key);
+			newAddressList = newAddressList.map((e, index) => {e.Key = index; return e});
 			oModel.setProperty("/addressNodes",newAddressList);
+			this.updateDistance(key)
 		},
 		populateAllAddresses: function () {
 			function onlyUnique(value, index, self) {
@@ -131,9 +133,6 @@ sap.ui.define([
 		requestDistanceMatrix: async (origins,destinations) => {
 			const formattedOrigins = origins[0]//.map(e => urlStrip(e))[0]//.join('","');
 			const formattedDestinations = destinations[0]//.map(e => urlStrip(e))[0]//.join('","');
-			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
-			// const distanceMatrixRoute = 'distancematrix/json?language=en-US&units=metric&origins={"'+formattedOrigins+'"}&destinations={"'+formattedDestinations+'"}';
-			// const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4';
 			var url = `https://mileagecalculatorapi.azurewebsites.net/api/maps/distancematrix?origins=${formattedOrigins}&destinations=${formattedDestinations}`;
 			
 			const response = await fetch(url, {
@@ -146,31 +145,7 @@ sap.ui.define([
 			});
 			return response.json(); 
 		},
-		dummyDistance(start,stop){
-			const pair = {start,stop}
-			switch(start+stop){
-				case (start+start): return 0
-				case ("Svinninge"+"Holbæk"): 
-				case ("Holbæk"+"Svinninge"): return 20
-				case ("Holbæk"+"Kalundborg"): 
-				case ("Kalundborg"+"Holbæk"): return 50
-				case ("Svinninge"+"Kalundborg"): 
-				case ("Kalundborg"+"Svinninge"): return 25
-				case ("Holbæk"+"Virum"): 
-				case ("Virum"+"Holbæk"): return 70
-				case ("Svinninge"+"Virum"): 
-				case ("Virum"+"Svinninge"): return 87
-				case ("Holbæk"+"Pionergården"): 
-				case ("Pionergården"+"Holbæk"): return 50
-				case ("Greve"+"Virum"): 
-				case ("Virum"+"Greve"): return 40
-				case ("Greve"+"Ballerup"): 
-				case ("Ballerup"+"Greve"): return 20
-				default: return 70
-			}
-		},
 		getDistanceKm: async function(startAddress,stopAddress) {
-			// return this.dummyDistance(startAddress,stopAddress);
 			const distanceMatrix = await this.requestDistanceMatrix([startAddress],[stopAddress]);
 			const distance = distanceMatrix["rows"][0].elements[0].distance.value/10/100;
 			return distance;
@@ -210,6 +185,7 @@ sap.ui.define([
 			var oModel = this.getView().getModel();
 			var addressNodes = oModel.getProperty("/addressNodes");
 			var indexOfNode = addressNodes.map(e => e.Key).indexOf(nodeKey)
+			if (indexOfNode < 0) return;
 			// Update current node if we are not the first - first node is always distance 0
 			if(indexOfNode > 0) 
 				this.getDistanceKm(this.getAddress(addressNodes[indexOfNode-1]),this.getAddress(addressNodes[indexOfNode]))
@@ -222,7 +198,7 @@ sap.ui.define([
 			oModel.setProperty("/addressNodes", addressNodes);
 		},
 		compareAddresses: function (a1, a2){
-			return a1.replace(/\W+/gi,'+') == a2.replace(/\W+/gi,'+')
+			return a1.toLowerCase().replace(/\W+/gi,'+') == a2.toLowerCase().replace(/\W+/gi,'+')
 		},
 		getEdges: function (){
 			function createDistance(startNode,destinationNode){
@@ -235,7 +211,6 @@ sap.ui.define([
 			var oModel = this.getView().getModel();
 			var addressNodes = oModel.getProperty("/addressNodes");
 			var companyList = oModel.getProperty("/companyAddress");
-
 			var homeNode = oModel.getProperty("/homeAddress");
 			var workPlace = oModel.getProperty("/workAddress");
 
@@ -249,10 +224,17 @@ sap.ui.define([
 									.concat(companyList.map(e => e.Key.replace(/\W+/gi,'+')))
 									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name.replace(/\W+/gi,'+'))));
 			companyAddresses.push(homeNode.replace(/\W+/gi,'+'));
-			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
+
+			var workEdges = distanceEdges
+							.filter(edge => 
+								companyAddresses.includes(address => this.compareAddresses(edge.StartAddress,address)) 
+								&& companyAddresses.includes(address => this.compareAddresses(address,edge.DestinationAddress))
+							);
 			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
-			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
-			var taxAbleEdges = workToHomeTrips.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == workPlace.replace(/\W+/gi,'+'))
+			var workToHomeTrips = workEdges.filter(edge => this.compareAddresses(edge.StartAddress, homeNode) 
+														   || this.compareAddresses(edge.DestinationAddress, homeNode))
+			var taxAbleEdges = workToHomeTrips.filter(edge => this.compareAddresses(edge.StartAddress, workPlace) 
+															  || this.companyAddress(edge.DestinationAddress, workPlace))
 			
 			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges, 'HomeEdge': workToHomeTrips}
 		},
@@ -346,8 +328,8 @@ sap.ui.define([
 			var formattedAddress = addressResult.formatted_address ?? ""
 			var matchFound = false;
 			if(formattedAddress){
-				matchFound = companyAddresses?.find( e => e.Name == addressResult.formatted_address)
-				matchFound = internalNameMatch(companyAddresses, addressResult.formatted_address)
+				matchFound = companyAddresses?.find( e => e.Name == formattedAddress)
+				matchFound = internalNameMatch(companyAddresses, formattedAddress)
 			}
 			if(subCode){
 				matchFound = internalNameMatch(companyAddresses, subCode)
