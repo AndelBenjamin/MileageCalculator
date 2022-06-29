@@ -23,6 +23,7 @@ sap.ui.define([
 		/**
 		* Add a new node for address input to the front
 		*/
+		//Button methods
 		addAddressNode: function(key) {
 			var oModel = this.getView().getModel();
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
@@ -65,17 +66,6 @@ sap.ui.define([
 			oModel.setProperty("/addressNodes",newAddressList);
 			this.updateDistance(key)
 		},
-		populateAllAddresses: function () {
-			function onlyUnique(value, index, self) {
-				return self.indexOf(value) === index;
-			}
-			var oModel = this.getView().getModel();
-			var companyList = oModel.getProperty("/companyAddress") ? oModel.getProperty("/companyAddress") : [];
-			companyList.map(e => new Object({"Name": e.Name, "Address": e.MainAddress}))
-			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
-			var uniqueList = companyList.concat(addressList).filter(onlyUnique)
-			oModel.setProperty("/allAddresses",uniqueList)
-		},
 		resetAddressNodes: function () {
 			var oModel = this.getView().getModel();
 			oModel.setProperty("/addressNodes", []);
@@ -111,6 +101,77 @@ sap.ui.define([
 					success => console.log("text copied"), 
 					err => console.log("error copying text")
 				);
+		},
+		calculateMilage : async function (){
+			function createDistance(startNode,destinationNode){
+				return {
+					"StartAddress": startNode.Name, // startNode.Address ? startNode.Address : startNode.Name,
+					"DestinationAddress": destinationNode.Name, //destinationNode.Address ? destinationNode.Address : destinationNode.Name,
+					"Distance": destinationNode.Distance
+				}
+			}
+			var oModel = this.getView().getModel();
+			var addressNodes = oModel.getProperty("/addressNodes");
+			var companyList = oModel.getProperty("/companyAddress");
+
+			var homeNode = oModel.getProperty("/homeAddress");
+			var workPlace = oModel.getProperty("/workAddress");
+			var homeWorkDistance = await this.getDistanceKm(homeNode,workPlace).then(distance => this.getView().getModel().setProperty("/workDistance",distance))
+			var homeWorkDistance = oModel.getProperty("/workDistance");
+
+			var distanceEdges = [];
+			for(let i = 0; i < addressNodes.length-1; i++){
+				distanceEdges.push(createDistance(addressNodes[i],addressNodes[i+1]))
+			}
+
+			var companyAddresses = companyList.flatMap(e => e.Addresses.map(address => address.Address.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Name.replace(/\W+/gi,'+')))
+									.concat(companyList.map(e => e.Key.replace(/\W+/gi,'+')))
+									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name.replace(/\W+/gi,'+'))));
+			companyAddresses.push(homeNode.replace(/\W+/gi,'+'));
+			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
+			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
+			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
+	
+			var taxMileageReport =  workEdges.length > 0 ? Math.min(2,workToHomeTrips.length) * homeWorkDistance: 0;
+			var workDistance = workEdges.length > 0 ? Math.max(workEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) - taxMileageReport,0) : 0;
+			var nonWorkDistance = nonWorkEdges.length > 0 ? nonWorkEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) : 0;
+			var andelMileageReport = workDistance + nonWorkDistance; 
+
+			oModel.setProperty("/andelMileageReport",Math.round(andelMileageReport))
+			oModel.setProperty("/skatMileageReport",Math.round(taxMileageReport))
+			this.saveModelToCookie();
+			console.log('Andel distance:'+andelMileageReport+' ## Skat distance:'+taxMileageReport)
+		},
+		requestGeocode: async function(latitude,longitude){
+			const proxyUrl = "https://mileagecalculatorapi.azurewebsites.net";
+			const path = `api/maps/geocode`;
+			const query = `?lat=${latitude}&lng=${longitude}`;
+			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
+			// 	const geolocationRoute = `geocode/json?latlng=${latitude},${longitude}`;
+			// 	const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4'//config.getProperty('/googleMapsApiKey');
+				const response = await fetch(`${proxyUrl}/${path}${query}`, {
+				method: 'GET',
+				headers: {
+						"Accept": "*/*",
+						"Accept-Encoding": "gzip, deflate, br",
+						"Connection": "keep-alive",
+					}
+				});
+
+				return response.json();
+		},
+		//Helper functions
+		populateAllAddresses: function () {
+			function onlyUnique(value, index, self) {
+				return self.indexOf(value) === index;
+			}
+			var oModel = this.getView().getModel();
+			var companyList = oModel.getProperty("/companyAddress") ? oModel.getProperty("/companyAddress") : [];
+			companyList.map(e => new Object({"Name": e.Name, "Address": e.MainAddress}))
+			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
+			var uniqueList = companyList.concat(addressList).filter(onlyUnique)
+			oModel.setProperty("/allAddresses",uniqueList)
 		},
 		saveModelToCookie: function () {
 			document.cookie = `calculatorModel=${this.getView().getModel().getJSON()}`
@@ -238,65 +299,6 @@ sap.ui.define([
 			
 			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges, 'HomeEdge': workToHomeTrips}
 		},
-		calculateMilage : async function (){
-			function createDistance(startNode,destinationNode){
-				return {
-					"StartAddress": startNode.Name, // startNode.Address ? startNode.Address : startNode.Name,
-					"DestinationAddress": destinationNode.Name, //destinationNode.Address ? destinationNode.Address : destinationNode.Name,
-					"Distance": destinationNode.Distance
-				}
-			}
-			var oModel = this.getView().getModel();
-			var addressNodes = oModel.getProperty("/addressNodes");
-			var companyList = oModel.getProperty("/companyAddress");
-
-			var homeNode = oModel.getProperty("/homeAddress");
-			var workPlace = oModel.getProperty("/workAddress");
-			var homeWorkDistance = await this.getDistanceKm(homeNode,workPlace).then(distance => this.getView().getModel().setProperty("/workDistance",distance))
-			var homeWorkDistance = oModel.getProperty("/workDistance");
-
-			var distanceEdges = [];
-			for(let i = 0; i < addressNodes.length-1; i++){
-				distanceEdges.push(createDistance(addressNodes[i],addressNodes[i+1]))
-			}
-
-			var companyAddresses = companyList.flatMap(e => e.Addresses.map(address => address.Address.replace(/\W+/gi,'+')))
-									.concat(companyList.map(e => e.Name.replace(/\W+/gi,'+')))
-									.concat(companyList.map(e => e.Key.replace(/\W+/gi,'+')))
-									.concat(companyList.flatMap(e => e.Addresses.map(address => address.Name.replace(/\W+/gi,'+'))));
-			companyAddresses.push(homeNode.replace(/\W+/gi,'+'));
-			var workEdges = distanceEdges.filter(edge => companyAddresses.includes(edge.StartAddress.replace(/\W+/gi,'+')) && companyAddresses.includes(edge.DestinationAddress.replace(/\W+/gi,'+')))
-			var nonWorkEdges = distanceEdges.filter(edge => !workEdges.includes(edge))
-			var workToHomeTrips = workEdges.filter(edge => edge.StartAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+') || edge.DestinationAddress.replace(/\W+/gi,'+') == homeNode.replace(/\W+/gi,'+'))
-	
-			var taxMileageReport =  workEdges.length > 0 ? Math.min(2,workToHomeTrips.length) * homeWorkDistance: 0;
-			var workDistance = workEdges.length > 0 ? Math.max(workEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) - taxMileageReport,0) : 0;
-			var nonWorkDistance = nonWorkEdges.length > 0 ? nonWorkEdges.map(edge => Number(edge.Distance)).reduce((acc,e) => acc + e) : 0;
-			var andelMileageReport = workDistance + nonWorkDistance; 
-
-			oModel.setProperty("/andelMileageReport",Math.round(andelMileageReport))
-			oModel.setProperty("/skatMileageReport",Math.round(taxMileageReport))
-			this.saveModelToCookie();
-			console.log('Andel distance:'+andelMileageReport+' ## Skat distance:'+taxMileageReport)
-		},
-		requestGeocode: async function(latitude,longitude){
-			const proxyUrl = "https://mileagecalculatorapi.azurewebsites.net";
-			const path = `api/maps/geocode`;
-			const query = `?lat=${latitude}&lng=${longitude}`;
-			// const apiUrl = 'https://maps.googleapis.com/maps/api/';
-			// 	const geolocationRoute = `geocode/json?latlng=${latitude},${longitude}`;
-			// 	const apiKey = 'AIzaSyCTUq6e2rJgMhIrSJLAV5carEJELtn4jp4'//config.getProperty('/googleMapsApiKey');
-				const response = await fetch(`${proxyUrl}/${path}${query}`, {
-				method: 'GET',
-				headers: {
-						"Accept": "*/*",
-						"Accept-Encoding": "gzip, deflate, br",
-						"Connection": "keep-alive",
-					}
-				});
-
-				return response.json();
-		},
 		locationCallback: function(result,view){
 			console.log(result);
 			const location = result.results.map(e => this.findMatchingCompanyAddress(e)).find(e => !!e)
@@ -355,131 +357,7 @@ sap.ui.define([
 					handleGeloactionError,
 					geoOptions
 				);
-		},
-		/**
-		 * Adds a new todo item to the bottom of the list.
-		 */
-		addTodo: function() {
-			var oModel = this.getView().getModel();
-			var aTodos = oModel.getProperty("/todos").map(function (oTodo) { return Object.assign({}, oTodo); });
-
-			aTodos.push({
-				title: oModel.getProperty("/newAddress"),
-				completed: false
-			});
-
-			oModel.setProperty("/todos", aTodos);
-			oModel.setProperty("/newAddress", "");
-		},
-
-		/**
-		 * Removes all completed items from the todo list.
-		 */
-		clearCompleted: function() {
-			var oModel = this.getView().getModel();
-			var aTodos = oModel.getProperty("/todos").map(function (oTodo) { return Object.assign({}, oTodo); });
-
-			var i = aTodos.length;
-			while (i--) {
-				var oTodo = aTodos[i];
-				if (oTodo.completed) {
-					aTodos.splice(i, 1);
-				}
-			}
-
-			oModel.setProperty("/todos", aTodos);
-		},
-
-		/**
-		 * Updates the number of items not yet completed
-		 */
-		updateItemsLeftCount: function() {
-			var oModel = this.getView().getModel();
-			var aTodos = oModel.getProperty("/todos") || [];
-
-			var iItemsLeft = aTodos.filter(function(oTodo) {
-				return oTodo.completed !== true;
-			}).length;
-
-			oModel.setProperty("/itemsLeftCount", iItemsLeft);
-		},
-
-		/**
-		 * Trigger search for specific items. The removal of items is disable as long as the search is used.
-		 * @param {sap.ui.base.Event} oEvent Input changed event
-		 */
-		onSearch: function(oEvent) {
-			var oModel = this.getView().getModel();
-
-			// First reset current filters
-			this.aSearchFilters = [];
-
-			// add filter for search
-			this.sSearchQuery = oEvent.getSource().getValue();
-			if (this.sSearchQuery && this.sSearchQuery.length > 0) {
-				oModel.setProperty("/itemsRemovable", false);
-				var filter = new Filter("title", FilterOperator.Contains, this.sSearchQuery);
-				this.aSearchFilters.push(filter);
-			} else {
-				oModel.setProperty("/itemsRemovable", true);
-			}
-
-			this._applyListFilters();
-		},
-
-		onFilter: function(oEvent) {
-			// First reset current filters
-			this.aTabFilters = [];
-
-			// add filter for search
-			this.sFilterKey = oEvent.getParameter("item").getKey();
-
-			// eslint-disable-line default-case
-			switch (this.sFilterKey) {
-				case "active":
-					this.aTabFilters.push(new Filter("completed", FilterOperator.EQ, false));
-					break;
-				case "completed":
-					this.aTabFilters.push(new Filter("completed", FilterOperator.EQ, true));
-					break;
-				case "all":
-				default:
-					// Don't use any filter
-			}
-
-			this._applyListFilters();
-		},
-
-		_applyListFilters: function() {
-			var oList = this.byId("todoList");
-			var oBinding = oList.getBinding("items");
-
-			oBinding.filter(this.aSearchFilters.concat(this.aTabFilters), "todos");
-
-			var sI18nKey;
-			if (this.sFilterKey && this.sFilterKey !== "all") {
-				if (this.sFilterKey === "active") {
-					sI18nKey = "ACTIVE_ITEMS";
-				} else {
-					// completed items: sFilterKey = "completed"
-					sI18nKey = "COMPLETED_ITEMS";
-				}
-				if (this.sSearchQuery) {
-					sI18nKey += "_CONTAINING";
-				}
-			} else if (this.sSearchQuery) {
-				sI18nKey = "ITEMS_CONTAINING";
-			}
-
-			var sFilterText;
-			if (sI18nKey) {
-				var oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
-				sFilterText = oResourceBundle.getText(sI18nKey, [this.sSearchQuery]);
-			}
-
-			this.getView().getModel("view").setProperty("/filterText", sFilterText);
-		},
-
+		}
 	});
 
 });
