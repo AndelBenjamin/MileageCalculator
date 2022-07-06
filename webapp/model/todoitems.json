@@ -1,7 +1,7 @@
 {
 	"newAddress": "",
-	"homeAddress": "Holbæk",
-	"workAddress": "Svinninge",
+	"homeAddress": "",
+	"workAddress": "Teknikerbyen 25, 2830 Virum",
 	"workDistance": 0,
 	"andelMileageReport": 0,
 	"skatMileageReport": 0,
@@ -9,6 +9,18 @@
 	"registrationDate": null,
 	"addressNodes": [{
 		"Key": 0,
+		"Name": "",
+		"Address": "",
+		"Distance": 0
+	},
+	{
+		"Key": 1,
+		"Name": "",
+		"Address": "",
+		"Distance": 0
+	},
+	{
+		"Key": 2,
 		"Name": "",
 		"Address": "",
 		"Distance": 0

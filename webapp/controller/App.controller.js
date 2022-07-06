@@ -29,7 +29,7 @@ sap.ui.define([
 		* Add a new node for address input to the front
 		*/
 		//Button methods
-		addAddressNode: function(key) {
+		addAddressNode: function(key,overwrite=false) {
 			this.inputHelper();
 			var oModel = this.getView().getModel();
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
@@ -53,7 +53,11 @@ sap.ui.define([
 
 			if(insertIndex == addressList.length){
 				addressList.push(newAddressNode);
-			}else{
+			}
+			else if(overwrite){
+				addressList[insertIndex] = newAddressNode;
+			}
+			else{
 				var movedNodes = addressList.splice(insertIndex,addressList.length-insertIndex).map(e => {e.Key =  e.Key + 1; return e})
 				addressList.push(newAddressNode);
 				addressList = addressList.concat(movedNodes);
@@ -203,13 +207,7 @@ sap.ui.define([
 
 			oModel.setProperty('/registrationDate',new Date())
 
-			const cookies = document
-				.cookie
-				.split(';')
-				.map(e => e.split('='))
-				.reduce((acc,current) => {acc[decodeURIComponent(current[0].trim())] = decodeURIComponent(current[1].trim()); return acc});
-			
-			if(oModel.getProperty("/addressNodes").length > 1 || !!oModel.getProperty("/addressNodes")[0]?.Address)
+			if(!!oModel.getProperty("/addressNodes")[0]?.Address)
 			{
 				return;
 			}
@@ -452,7 +450,7 @@ sap.ui.define([
 			const location = result.results.map(e => this.findMatchingCompanyAddress(e)).find(e => !!e)
 			var oModel = view.getModel();
 			oModel.setProperty("/newAddress", !!location ? location.MainAddress : result.results[0].formatted_address);
-			this.addAddressNode(key);
+			this.addAddressNode(key,true);
 
 		},
 		findMatchingCompanyAddress: function(addressResult){
@@ -501,7 +499,7 @@ sap.ui.define([
 				navigator
 				.geolocation
 				.getCurrentPosition(
-					pos => this.requestGeocode(pos.coords.latitude,pos.coords.longitude).then(r => this.locationCallback(r, this.getView(), key)),
+					pos => this.requestGeocode(pos.coords.latitude,pos.coords.longitude).then(r => this.locationCallback(r, this.getView(), key-1)),
 					handleGeloactionError,
 					geoOptions
 				);

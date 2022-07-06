@@ -53,7 +53,8 @@
 									alignItems="Center"
 									justifyContent="SpaceBetween">
 									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
-									<Input class="headerInput" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}"/>
+									<Input class="headerInput" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !!${/homeAddress} }"/>
+									<Input class="headerInput warning" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !${/homeAddress} }"/>
 									<FlexBox class="hintIcon">
 										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>HOME_ADDRESS_HINT})" />
 									</FlexBox>
@@ -62,7 +63,8 @@
 									alignItems="Center"
 									justifyContent="SpaceBetween">
 									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
-									<Input class="headerInput" placeholder="{i18n>WORK_ADDRESS_PLACEHOLDER}" value="{/workAddress}"/>
+									<Input class="headerInput" placeholder="{i18n>WORK_ADDRESS_PLACEHOLDER}" value="{/workAddress}" visible="{= !!${/workAddress} }"/>
+									<Input class="headerInput warning" placeholder="{i18n>WORK_ADDRESS_PLACEHOLDER}" value="{/workAddress}" visible="{= !${/workAddress} }"/>
 									<FlexBox class="hintIcon">
 										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>WORK_ADDRESS_HINT})" />
 									</FlexBox>

@@ -39,7 +39,8 @@
                             </items>
                         </ComboBox> -->
                         <Input class="todoInput" value="{Name}" placeholder="{i18n>ADDRESS_PLACEHOLDER}" change=".updateDistance(${Key})"/>
-                        <Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation(${Key})" visible="{= !${Name}}"></Button>
+                        <Button class="currentLocationIcon" icon="./img/current-location.svg" press=".addCurrentGeolocation(${Key})" visible="{= !${Name}}">
+                        </Button>
                 </FlexBox>
                 <FlexBox class="addAddress">
                 <Button class="addAddressButton" text="+" press=".addAddressNode(${Key})"></Button>
