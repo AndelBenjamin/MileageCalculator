@@ -2,11 +2,11 @@
 	xmlns:mvc="sap.ui.core.mvc" 
 	xmlns:core="sap.ui.core" 
 	xmlns="sap.m" 
+	xmlns:u="sap.ui.unified"
 	xmlns:f="sap.f" 
 	controllerName="sap.ui.demo.todo.controller.App" 
 	displayBlock="true">
     <Panel id="mileageCalculatorAddressListPanel"
-    headerText="{i18n>ADDRESS_LIST_TITLE}"
       class="sapUiResponsiveMargin mileageCalculatorAddressListPanel"
       width="auto" >
         <List id="mileageCalculatorAddressList"
@@ -15,14 +15,15 @@
             growing="true"
             growingScrollToLoad="true"
             showNoData="false"
-            showSeparators="None"
-            width="500px">
-            <CustomListItem>
+            showSeparators="None">
+            <CustomListItem class="customListItem">
+            
+            <Text class="lineElement" text="."/>
                 <FlexBox class="distanceField"
                     alignItems="Center"
                     justifyContent="Center">
-                    <Input class="distanceInput" value="{Distance}" width = "70px"  visible="{= !!${Key}}" />
-                    <Text class="distanceUnitLabel" text="Km" textAlign="Center" visible="{= !!${Key}}"/>
+                    <!-- <Input class="distanceInput" value="{Distance}" width = "50px"  visible="{= !!${Key}}" /> -->
+                    <!-- <Text class="distanceUnitLabel" text="{Distance}Km" textAlign="Center" visible="{= !!${Key}}"/> -->
                 </FlexBox>
                 <FlexBox class="addressNode"
                     alignItems="Center"
@@ -37,12 +38,11 @@
                                         />
                             </items>
                         </ComboBox> -->
-                        <Input class="todoInput" value="{Name}" change=".updateDistance(${Key})"/>
+                        <Input class="todoInput" value="{Name}" placeholder="{i18n>ADDRESS_PLACEHOLDER}" change=".updateDistance(${Key})"/>
+                        <Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation(${Key})" visible="{= !${Name}}"></Button>
                 </FlexBox>
-                <FlexBox class="distanceField"
-                    alignItems="Start"
-                    justifyContent="End">
-                <Button class="addAddress" text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${Key})"></Button>
+                <FlexBox class="addAddress">
+                <Button class="addAddressButton" text="+" press=".addAddressNode(${Key})"></Button>
                 </FlexBox>
             </CustomListItem>
         </List>

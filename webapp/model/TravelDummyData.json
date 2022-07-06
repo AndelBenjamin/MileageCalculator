@@ -1,0 +1,40 @@
+{ 
+    "UserId" : "9e534d4f-9e95-4ca5-a57e-dcd30dc603b3",
+    "Travels": [      
+        {
+            "Date" : "2022-07-02",
+            "Edges" : [
+                { 
+                    "StartAddress" : "Hillerød",
+                    "DistinationAddress" : "Virum",
+                    "Distance" : 21.3
+                },
+                { 
+                    "StartAddress" : "Virum",
+                    "DistinationAddress" : "Hillerød",
+                    "Distance" : 21.3
+                }
+            ]
+        },
+        {
+            "Date" : "2022-07-04",
+            "Edges" : [
+                { 
+                    "StartAddress" : "Roskilde",
+                    "DistinationAddress" : "Virum",
+                    "Distance" : 21.3
+                },
+                { 
+                    "StartAddress" : "Virum",
+                    "DistinationAddress" : "Andel Pionergården",
+                    "Distance" : 21.3
+                },
+                { 
+                    "StartAddress" : "Andel Pionergården",
+                    "DistinationAddress" : "Roskilde",
+                    "Distance" : 21.3
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+<mvc:View 
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns:core="sap.ui.core" 
+	xmlns="sap.m" 
+	xmlns:u="sap.ui.unified"
+	xmlns:f="sap.f" 
+	controllerName="sap.ui.demo.todo.controller.App" 
+	displayBlock="true">
+    <Panel id="MobileContentPanel"
+      class="mileageCalculatorAddressListPanel">
+        <!-- <u:Calendar
+            id="calendar"
+            select="handleCalendarSelect" /> -->
+        <mvc:XMLView viewName="sap.ui.demo.todo.view.AddressNodeList"/>
+        <HBox>
+            <Text class="InfoLabel" text="{i18n>SAP_KM_LABEL}"/> 
+            <Text class="InfoLabel" text=" {/andelMileageReport}Km."/> 
+        </HBox>
+        <HBox>
+            <Text class="InfoLabel" text="{i18n>MONEY_LABEL}"/> 
+            <Text class="InfoLabel" text=" {= ${/andelMileageReport}*3.7}Kr."/> 
+        </HBox>
+    </Panel>
+</mvc:View>

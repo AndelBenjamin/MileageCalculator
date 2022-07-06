@@ -2,60 +2,89 @@
 	xmlns:mvc="sap.ui.core.mvc" 
 	xmlns:core="sap.ui.core" 
 	xmlns="sap.m" 
+	xmlns:u="sap.ui.unified"
 	xmlns:f="sap.f" 
+	xmlns:layout= "sap.ui.layout"
 	controllerName="sap.ui.demo.todo.controller.App" 
 	displayBlock="true">
 		<App>
-			<Page>
+			<Page class="noGeneralPadding">
 				<customHeader>
-					<f:ShellBar core:require="{ Helper: 'sap/ui/demo/todo/util/Helper' }" title="{i18n>TITLE}" homeIcon="{:= Helper.resolvePath('./img/logo_ui5.png') }" />
+				<f:ShellBar 
+					core:require="{ Helper: 'sap/ui/demo/todo/util/Helper' }" 
+					title="{i18n>ADDRESS_LIST_TITLE}" 
+					showSearch="true"
+					showNotifications="true"
+					showProductSwitcher="true"
+					homeIcon="{:= Helper.resolvePath('./img/Small_solid_andel_logo_white_RGB.png') }">
+				</f:ShellBar>
 				</customHeader>
 				
 				<content>
-					<f:DynamicPage>
+					<f:DynamicPage class="noGeneralPadding">
 						<f:header>
 							<f:DynamicPageHeader pinnable="false">
-								<HBox >	
-									<Button text="{i18n>CALCULATE_DISTANCE_BUTTON_LABEL}" press=".calculateMilage"></Button>
-									<Button text="{i18n>ADD_CURRENT_LOCATION_BUTTON_LABEL}" press=".addCurrentGeolocation"></Button>
-									<Button text="{i18n>REGISTER_IN_SAP_BUTTON_LABEL}" press=".calculateMilage"></Button>
-									<Button text="{i18n>COPY_NODES_BUTTON_LABEL}" press=".copyNodes"></Button>
-									<Button text="{i18n>RESET_BUTTON_LABEL}" press=".resetAddressNodes"></Button>
-								</HBox>
-								<ComboBox xmlns="sap.m" value="{/newAddress}" items="{/companyAddress}">
-									<items>
-										<core:Item xmlns:core="sap.ui.core" 
-												key="{Key}" 
-												text="{Name}"
-												/>
-									</items>
-								</ComboBox>
-								<Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${undefined})"></Button>
-								<HBox>
-									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
-									<Input class="todoInput" value="{/homeAddress}"/>
-								</HBox>
-								<HBox>
-									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
-									<Input class="todoInput" value="{/workAddress}"/>
-								</HBox>
-								<HBox>
+								<HBox class="headerWrapper">
+								<FlexBox class="distanceField"
+									alignItems="Center"
+									justifyContent="SpaceBetween">
 									<Text class="InputLabel" text="{i18n>REGISTRATION_NUMBER_LABEL}"/>
-									<Input class="todoInput" value="{/registrationNumber}"/>
+									<Input class="headerInput" placeholder="{i18n>LICENSE_PLATE_PLACEHOLDER}" value="{/registrationNumber}" required="true"  visible="{= !!${/registrationNumber} }"/>
+									<Input class="headerInput warning" placeholder="{i18n>LICENSE_PLATE_PLACEHOLDER}" value="{/registrationNumber}" required="true" visible="{= !${/registrationNumber} }"/>
+									<FlexBox class="hintIcon">
+										<Link text="?" textAlign="Center" href="#" press="hintClick(${i18n>LICENSEPLATE_HINT})" />
+									</FlexBox>
+								</FlexBox>
+								<FlexBox class="distanceField"
+									alignItems="Center"
+									justifyContent="SpaceBetween">
+									<Text class="InputLabel" text="{i18n>DATE_LABEL}"/>
+								<DatePicker
+									id="DP1"
+									placeholder="{i18n>DATE_PLACEHOLDER}"
+									change="handleCalendarSelect"
+									class="headerInput"
+									dateValue="{/registrationDate}"/>
+									<FlexBox class="hintIcon">
+										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>DATE_HINT})"/>
+									</FlexBox>
+								</FlexBox>
+								<FlexBox class="distanceField"
+									alignItems="Center"
+									justifyContent="SpaceBetween">
+									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
+									<Input class="headerInput" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}"/>
+									<FlexBox class="hintIcon">
+										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>HOME_ADDRESS_HINT})" />
+									</FlexBox>
+								</FlexBox>	
+								<FlexBox class="distanceField"
+									alignItems="Center"
+									justifyContent="SpaceBetween">
+									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
+									<Input class="headerInput" placeholder="{i18n>WORK_ADDRESS_PLACEHOLDER}" value="{/workAddress}"/>
+									<FlexBox class="hintIcon">
+										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>WORK_ADDRESS_HINT})" />
+									</FlexBox>
+								</FlexBox>	 
 								</HBox>
 							</f:DynamicPageHeader>
 						</f:header>
-						<f:content >
-							<mvc:XMLView viewName="sap.ui.demo.todo.view.AddressNodeList"/>
+						<f:content>
+							<mvc:XMLView viewName="sap.ui.demo.todo.view.MobileContent"/>
 						</f:content>
 					</f:DynamicPage>
 				</content>
 				<footer>
-					<OverflowToolbar id="toolbar-footer" visible="{= !!${view>/isMobile} }">
-						<VBox>
-							<Text class="InputLabel" text="Reporter {/andelMileageReport}km til Andel."/>
-							<Text class="InputLabel" text="Reporter {/skatMileageReport}km til Skat."/>
-						</VBox>
+					<OverflowToolbar id="toolbar-footer">
+						<FlexBox 
+							alignItems="Center" 
+							justifyContent="Center"
+							 width="100%" >
+							<!-- <Button class="footerButton" text="{i18n>BACK_BUTTON_LABEL}" visible="{= !!${view>/isMobile} }"></Button> -->
+							<Button class="footerButton" text="{i18n>COPY_NODES_BUTTON_LABEL}" press=".copyNodes" visible="{= !${view>/isMobile} }"></Button>
+							<Button class="footerButton" text="{i18n>REGISTER_IN_SAP_BUTTON_LABEL}" press=".successDialog(${i18n>REGISTER_IN_SAP_DIALOG})"></Button>
+						</FlexBox>
 					</OverflowToolbar>
 				</footer>
 			</Page>

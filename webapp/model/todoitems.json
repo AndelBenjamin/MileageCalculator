@@ -6,6 +6,7 @@
 	"andelMileageReport": 0,
 	"skatMileageReport": 0,
 	"registrationNumber": "",
+	"registrationDate": null,
 	"addressNodes": [{
 		"Key": 0,
 		"Name": "",

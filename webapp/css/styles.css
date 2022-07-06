@@ -3,6 +3,10 @@ li[data-todo-item-completed="true"] span {
 	text-decoration: line-through;
 }
 
+.warning {
+	border: 3px solid crimson;
+}
+
 .InputLabel {
 	margin:auto;
 	font-size: medium;
@@ -10,11 +14,34 @@ li[data-todo-item-completed="true"] span {
 }
 
 .distanceInput {
-	width: 70px;
+	width: 50px;
 }
 
 .addressNode{
 	display: flex;
+}
+
+.headerWrapper{
+	max-width: 500px;
+	height: auto;
+	display: block;
+	margin:auto;
+}
+
+/* .headerWrapper *{
+	margin:2px;
+} */
+
+.footerButton{
+	margin: 1rem;
+}
+
+.footerButton .sapMBtnInner{
+	border: 1px solid;
+}
+
+.dividerBox{
+	width: 100%;
 }
 
 .distanceUnitLabel{
@@ -22,11 +49,119 @@ li[data-todo-item-completed="true"] span {
 	font-weight: bold;
 	text-align: center;    
 	display: flex;
+	background-color: white;
+	background-blend-mode: light;
 	flex-direction: column-reverse;
 }
 
+.noGeneralPadding .sapFDynamicPage-Std-Phone .sapFDynamicPageContent{
+	margin:0px;
+	padding:0px;
+}
+.sapFDynamicPage-Std-Phone .sapFDynamicPageContent, .sapFDynamicPage-Std-Phone .sapFDynamicPageContentFitContainer {
+    padding: 0px;
+}
+
 .mileageCalculatorAddressListPanel{ 
+	margin:0px;
+	padding:0px;
 	align-items: center;
     justify-content: center;
     display: grid;
+	border:0px solid transparent;
+}
+
+.mileageCalculatorAddressListPanel *:not(:where(.sapMBtnBase *, .sapMInputBaseContentWrapper, .lineElement, .distanceUnitLabel)){
+	background-color: transparent;
+}
+
+.appTitle{
+	font-size: large;
+	font-weight: bold;
+	text-align: center;
+	margin:auto;
+	width: 100%;
+}
+
+.lineElement{
+	background:black;
+	width:1px;
+	height:101%;
+    left: 50%;
+    position: absolute;
+    margin: auto;
+}
+
+.InfoLabel{
+	margin:5px;
+	font-size: medium;
+	font-weight: bold;
+}
+
+.hintBox{
+	color:aliceblue;
+	font-size: small;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	cursor: pointer;
+}
+
+.hintIcon .sapMText{
+	font-size: small;
+	text-align: center;
+}
+
+.hintIcon *{
+	color:aliceblue;
+	font-size: small;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	cursor: pointer;
+}
+
+/* .sapMLnk:not(.sapMLnkDsbl) {
+     text-shadow: 0 0 0 #ffffff;
+}
+
+.sapMLnk:visited {
+	color:aliceblue;
+} */
+
+.hintIcon{
+	position: absolute;
+	margin: 0px;
+	margin-left: -10px;
+	padding: 0px;
+	size: 1rem;
+    right: -0.5rem;
+    top: -0.1rem;
+	width: 1rem;
+	height: 1rem;
+	text-align: center;
+	border: 0.0625rem solid #0854a0;
+	 background-color: white; 
+    border-radius: 50%;
+}
+
+.addAddress{
+    margin: auto;
+	border-radius: 50%;    
+	position: relative;
+}
+
+.addAddress *{
+    margin: auto;
+	border-radius: 50%;  
+}
+
+.customListItem{
+	padding: 0px;
+	margin: 0px;
+	border:0px solid transparent;
 }

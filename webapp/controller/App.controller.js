@@ -1,11 +1,15 @@
-
 sap.ui.define([
 	"sap/ui/Device",
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
-	"sap/ui/model/json/JSONModel"
-], function(Device, Controller, Filter, FilterOperator, JSONModel) {
+	"sap/ui/model/json/JSONModel",
+	"sap/ui/core/library",
+	'sap/m/Button',
+	'sap/m/Text',
+	'sap/m/ButtonType',
+	"sap/m/Dialog"
+], function(Device, Controller, Filter, FilterOperator, JSONModel, CoreLibrary, Button, Text, ButtonType, Dialog) {
 	"use strict";
 	return Controller.extend("sap.ui.demo.todo.controller.App", {
 
@@ -14,10 +18,11 @@ sap.ui.define([
 			this.aTabFilters = [];
 
 			this.getView().setModel(new JSONModel({
-				isMobile: Device.browser.mobile,
+				isMobile: sap.ui.Device.resize.width < 600,
 				filterText: undefined
 			}), "view");
 			this.setCookieAsModel()
+			this.setInitState()
 		},
 
 		/**
@@ -25,6 +30,7 @@ sap.ui.define([
 		*/
 		//Button methods
 		addAddressNode: function(key) {
+			this.inputHelper();
 			var oModel = this.getView().getModel();
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
 				
@@ -110,6 +116,9 @@ sap.ui.define([
 					"Distance": destinationNode.Distance
 				}
 			}
+			
+			this.inputHelper();
+			
 			var oModel = this.getView().getModel();
 			var addressNodes = oModel.getProperty("/addressNodes");
 			var companyList = oModel.getProperty("/companyAddress");
@@ -172,6 +181,72 @@ sap.ui.define([
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
 			var uniqueList = companyList.concat(addressList).filter(onlyUnique)
 			oModel.setProperty("/allAddresses",uniqueList)
+		},
+		setInitState: function(){
+			function insertOrUpdateNode(list,node,index){
+				for(var i = 0; i <= index; i++){
+					if(list.length-1 < i){
+						list.push({
+							"Key": i,
+							"Name": "",
+							"Address": ""
+						})
+					}
+					if(i == index){
+						list[i] = node
+					}
+				}
+			}
+
+			var oModel = this.getView().getModel();
+			if (!oModel) return;
+
+			oModel.setProperty('/registrationDate',new Date())
+
+			const cookies = document
+				.cookie
+				.split(';')
+				.map(e => e.split('='))
+				.reduce((acc,current) => {acc[decodeURIComponent(current[0].trim())] = decodeURIComponent(current[1].trim()); return acc});
+			
+			if(oModel.getProperty("/addressNodes").length > 1 || !!oModel.getProperty("/addressNodes")[0]?.Address)
+			{
+				return;
+			}
+
+			var addressNodes = oModel.getProperty("/addressNodes");
+
+			if(!!oModel.getProperty("/homeAddress")){
+				var homeAddress = oModel.getProperty("/homeAddress")
+				var startNode = {
+					"Key": 0,
+					"Name": homeAddress,
+					"Address": homeAddress
+				}
+				insertOrUpdateNode(addressNodes,startNode,0)
+
+				var endNode = {
+					"Key": 2,
+					"Name": homeAddress,
+					"Address": homeAddress
+				}
+				insertOrUpdateNode(addressNodes,endNode,2)
+			}
+
+			if(!!oModel.getProperty("/workAddress")){
+				var workAddress = oModel.getProperty("/workAddress")
+				var startNode = {
+					"Key": 1,
+					"Name": workAddress,
+					"Address": workAddress
+				}
+				insertOrUpdateNode(addressNodes,startNode,1)
+			}
+
+			oModel.setProperty("/addressNodes",addressNodes)
+			this.updateDistance(1)
+			
+			this.populateAllAddresses()
 		},
 		saveModelToCookie: function () {
 			document.cookie = `calculatorModel=${this.getView().getModel().getJSON()}`
@@ -261,6 +336,79 @@ sap.ui.define([
 		compareAddresses: function (a1, a2){
 			return a1.toLowerCase().replace(/\W+/gi,'+') == a2.toLowerCase().replace(/\W+/gi,'+')
 		},
+		handleCalendarSelect: function(event){
+			var calendar = event.getSource();
+			// var selectedDate = calendar.getSelectedDates();
+			var dateValue = event.getParameter("value");
+			var isDateValid = event.getParameter("valid");
+			
+			var ValueState = CoreLibrary.ValueState;
+			if (isDateValid) {
+				calendar.setValueState(ValueState.None);
+			} else {
+				calendar.setValueState(ValueState.Error);
+			}
+
+			var dateParts = dateValue.split(".");
+			var date =  new Date(parseInt(dateParts[2], 10),
+								parseInt(dateParts[1], 10) - 1,
+								parseInt(dateParts[0], 10));//selectedDate[0].getStartDate();
+			
+			var oModel = this.getView().getModel();
+			oModel.setProperty("/registrationDate", date);
+
+			this.loadTravelData(this.GetTravel("", `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`).Edges)	
+			
+			this.inputHelper();
+		},
+		inputHelper: function(){
+			var oModel = this.getView().getModel();
+			var checkList = [
+				{"key":"LICENSEPLATE_WARNING","data": oModel.getProperty('/registrationNumber')},
+				{"key":"HOME_ADDRESS_WARNING","data": oModel.getProperty('/homeAddress')},
+				{"key":"WORK_ADDRESS_WARNING","data": oModel.getProperty('/workAddress')},
+				{"key":"DATE_WARNING","data": oModel.getProperty('/registrationDate')}
+			];
+			var i18nResourceBundle = this.getView().getModel("i18n").getResourceBundle();
+			
+			checkList.forEach(element => {
+				if(!element) return;
+				
+				var i18nKey = element.key;
+				var data = element.data;
+
+				if(data) return;
+				
+				var message = i18nResourceBundle.getText(i18nKey);
+				this.warningDialog(message)
+				return;
+			});
+		},
+		loadTravelData: function (travelData) {
+			var oModel = this.getView().getModel();
+			if (!oModel) return;
+			if (travelData.length == 0) return;
+
+			var model = {"addressNodes": [] };
+			//Initial node
+			model['addressNodes'].push(
+				{	"Key": 0,
+				"Name": travelData[0].StartAddress,
+				"Address": travelData[0].StartAddress,
+				"Distance": 0})
+			//Add remaining nodes
+			for (var i = 0; i<travelData.length; i++){
+				var currentEdge = travelData[i];
+				model['addressNodes'].push(
+				{	"Key": i+1,
+				"Name": currentEdge.DistinationAddress,
+				"Address": currentEdge.DistinationAddress,
+				"Distance": currentEdge.Distance})
+			}
+
+			if(model['addressNodes']) oModel.setProperty("/addressNodes",model['addressNodes'])
+			this.populateAllAddresses()
+		},
 		getEdges: function (){
 			function createDistance(startNode,destinationNode){
 				return {
@@ -299,12 +447,12 @@ sap.ui.define([
 			
 			return { 'WorkEdges': workEdges, 'NonWorkEdges': nonWorkEdges, 'TaxEdges': taxAbleEdges, 'HomeEdge': workToHomeTrips}
 		},
-		locationCallback: function(result,view){
+		locationCallback: function(result,view,key){
 			console.log(result);
 			const location = result.results.map(e => this.findMatchingCompanyAddress(e)).find(e => !!e)
 			var oModel = view.getModel();
 			oModel.setProperty("/newAddress", !!location ? location.MainAddress : result.results[0].formatted_address);
-			this.addAddressNode(undefined);
+			this.addAddressNode(key);
 
 		},
 		findMatchingCompanyAddress: function(addressResult){
@@ -315,7 +463,7 @@ sap.ui.define([
 			function isWithinBounds(geometry, latitude, longitude){
 				if (!geometry || !geometry.northeast || !geometry.southWest) return false;
 
-				const offset = 0.005;
+				const offset = 0.01;
 				var northEast = geometry.northeast
 				var southWest = geometry.southwest
 				return (latitude <= northEast.lat+offset && latitude >= southWest.lat-offset) 
@@ -340,7 +488,7 @@ sap.ui.define([
 
 			return matchFound;
 		},
-		addCurrentGeolocation: function(){
+		addCurrentGeolocation: function(key){
 			function handleGeloactionError(error){
 				console.warn(`ERROR(${error.code}): ${error.message}`);
 			}
@@ -353,11 +501,218 @@ sap.ui.define([
 				navigator
 				.geolocation
 				.getCurrentPosition(
-					pos => this.requestGeocode(pos.coords.latitude,pos.coords.longitude).then(r => this.locationCallback(r, this.getView())),
+					pos => this.requestGeocode(pos.coords.latitude,pos.coords.longitude).then(r => this.locationCallback(r, this.getView(), key)),
 					handleGeloactionError,
 					geoOptions
 				);
+		},
+		hintClick: function(message){
+			var dialog = new Dialog({
+				title: 'Information',
+				type: 'Message',
+				state: 'Information',
+				content: new Text({
+					text: message
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+		successDialog: function(message){
+			this.ShowDialog('Success','Success',message)
+		},
+		warningDialog: function(message){
+			this.ShowDialog('Warning','Warning',message)
+		},
+		ShowDialog: function(state, title, message){
+			var dialog = new Dialog({
+				title: title,
+				type: 'Message',
+				state: state,
+				content: new Text({
+					text: message
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+
+		////////////////////////////////////////////////
+		// Export these functions to seperate files  //
+		//////////////////////////////////////////////
+		GetTravel: function(UserId, Date){
+			if(Date=='2022-7-4'){
+				return {
+					"Date" : "2022-07-04",
+					"Edges" : [
+						{ 
+							"StartAddress" : "Hillerød",
+							"DistinationAddress" : "Virum",
+							"Distance" : 21.3
+						},
+						{ 
+							"StartAddress" : "Virum",
+							"DistinationAddress" : "Hillerød",
+							"Distance" : 21.3
+						}
+					]
+				}
+			}
+		
+			return {
+				"Date" : "2022-07-02",
+				"Edges" : [
+					{ 
+						"StartAddress" : "Roskilde",
+						"DistinationAddress" : "Virum",
+						"Distance" : 1
+					},
+					{ 
+						"StartAddress" : "Virum",
+						"DistinationAddress" : "Andel Pionergården",
+						"Distance" : 2
+					},
+					{ 
+						"StartAddress" : "Andel Pionergården",
+						"DistinationAddress" : "Roskilde",
+						"Distance" : 3
+					}
+				]
+			}
+		},onMessageDialogPress: function (oEvent) {
+			var dialog = new Dialog({
+				title: 'Default Message',
+				type: 'Message',
+					content: new Text({
+						text: 'Build enterprise-ready web applications, responsive to all devices and running on the browser of your choice. That´s OpenUI5.'
+					}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+
+		onMessageErrorDialogPress: function (oEvent) {
+			var dialog = new Dialog({
+				title: 'Error',
+				type: 'Message',
+				state: 'Error',
+				content: new Text({
+					text: 'The only error you can make is not even trying.'
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+
+		onMessageWarningDialogPress: function (oEvent) {
+			var dialog = new Dialog({
+				title: 'Warning',
+				type: 'Message',
+				state: 'Warning',
+				content: new Text({
+					text: 'Ruling the world is a time-consuming task. You will not have a lot of spare time.'
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+
+		onMessageSuccessDialogPress: function (oEvent) {
+			var dialog = new Dialog({
+				title: 'Success',
+				type: 'Message',
+				state: 'Success',
+				content: new Text({
+					text: 'One of the keys to success is creating realistic goals that can be achieved in a reasonable amount of time.'
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
+		},
+
+		onMessageInformationDialogPress: function (oEvent) {
+			var dialog = new Dialog({
+				title: 'Information',
+				type: 'Message',
+				state: 'Information',
+				content: new Text({
+					text: 'Dialog with value state Information.'
+				}),
+				beginButton: new Button({
+					type: ButtonType.Emphasized,
+					text: 'OK',
+					press: function () {
+						dialog.close();
+					}
+				}),
+				afterClose: function() {
+					dialog.destroy();
+				}
+			});
+
+			dialog.open();
 		}
+		
 	});
 
 });

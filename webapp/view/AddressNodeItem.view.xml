@@ -9,8 +9,10 @@
         <HBox class="addressNode">
             <Button text="{i18n>REMOVE_NODE_BUTTON_LABEL}" press=".removeAddressNode(${Key})"></Button>
             <Input class="todoInput" value="{Name}" change=".updateDistance(${Key})"/>
-            <Input class="distanceInput" value="{Distance}" />
-            <Text class="distanceUnitLabel" text="Km" />
+            <Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${undefined})"></Button>
+            <!-- <Input class="distanceInput" value="{Distance}" /> -->
+            <Text class="distanceUnitLabel" text="{Distance}Km" />
+            <Text class="lineElement" text="hej med dig"/>
         </HBox>
         <Button text="{i18n>ADD_LOCATION_BUTTON_LABEL}" press=".addAddressNode(${Key})"></Button>
     </Panel>
