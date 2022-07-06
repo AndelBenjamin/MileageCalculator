@@ -97,7 +97,7 @@ li[data-todo-item-completed="true"] span {
 	height:1rem;
 	align-items: center;
 	margin:auto;
-	opacity: 0.55;
+	filter: invert(48%) sepia(13%) saturate(3207%) hue-rotate(155deg) brightness(95%) contrast(80%);
 }
 
 .InfoLabel{
