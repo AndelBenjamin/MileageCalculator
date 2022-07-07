@@ -49,8 +49,8 @@ li[data-todo-item-completed="true"] span {
 	font-weight: bold;
 	text-align: center;    
 	display: flex;
-	background-color: white;
-	background-blend-mode: light;
+	/* background-color: white;
+	background-blend-mode: light; */
 	flex-direction: column-reverse;
 }
 

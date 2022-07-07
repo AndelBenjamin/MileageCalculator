@@ -22,14 +22,14 @@
                 <FlexBox class="distanceField"
                     alignItems="Center"
                     justifyContent="Center">
-                    <!-- <Input class="distanceInput" value="{Distance}" width = "50px"  visible="{= !!${Key}}" /> -->
-                    <!-- <Text class="distanceUnitLabel" text="{Distance}Km" textAlign="Center" visible="{= !!${Key}}"/> -->
+                    <Input class="distanceInput" value="{Distance}" width = "50px" visible="{= !!${/showDetailedView} ? !!${Key} : !!${showDetailedView}}" />
+                    <Text class="distanceUnitLabel" text="Km" textAlign="Center" visible="{= !!${/showDetailedView} ? !!${Key} : !!${showDetailedView}}"/>
                 </FlexBox>
                 <FlexBox class="addressNode"
                     alignItems="Center"
                     justifyContent="Center">
                         <Button text="{i18n>REMOVE_NODE_BUTTON_LABEL}" press=".removeAddressNode(${Key})"></Button>
-                        <ComboBox xmlns="sap.m" items="{/allAddresses}" value="{Name}" selectedKey="{Key}" change=".updateDistance(${Key})">
+                        <ComboBox xmlns="sap.m" items="{/allAddresses}" value="{Name}" selectedKey="{Name}" change=".updateDistance(${Key})">
                             <items>
                                 <core:Item xmlns:core="sap.ui.core" 
                                         key="{Key}" 

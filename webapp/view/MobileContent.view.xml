@@ -20,5 +20,9 @@
             <Text class="InfoLabel" text="{i18n>MONEY_LABEL}"/> 
             <Text class="InfoLabel" text=" {= ${/andelMileageReport}*3.7}Kr."/> 
         </HBox>
+        <HBox visible="{= !!${/showDetailedView}}">
+            <Text class="InfoLabel" text="{i18n>TAX_KM_LABEL}"/> 
+            <Text class="InfoLabel" text=" {/skatMileageReport}Km."/> 
+        </HBox>
     </Panel>
 </mvc:View>

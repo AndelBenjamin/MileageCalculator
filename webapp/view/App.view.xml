@@ -53,8 +53,8 @@
 									alignItems="Center"
 									justifyContent="SpaceBetween">
 									<Text class="InputLabel" text="{i18n>HOME_ADDRESS_LABEL}"/>
-									<Input class="headerInput" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !!${/homeAddress} }"/>
-									<Input class="headerInput warning" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !${/homeAddress} }"/>
+									<Input class="headerInput" change=".fieldUpdateTriggers" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !!${/homeAddress} }"/>
+									<Input class="headerInput warning" change=".fieldUpdateTriggers" placeholder="{i18n>HOME_ADDRESS_PLACEHOLDER}" value="{/homeAddress}" visible="{= !${/homeAddress} }"/>
 									<FlexBox class="hintIcon">
 										<Link text="?"  textAlign="Center" href="#" press="hintClick(${i18n>HOME_ADDRESS_HINT})" />
 									</FlexBox>
@@ -63,7 +63,7 @@
 									alignItems="Center"
 									justifyContent="SpaceBetween">
 									<Text class="InputLabel" text="{i18n>WORK_ADDRESS_LABEL}"/>
-									<ComboBox xmlns="sap.m" value="{/workAddress}" items="{/companyAddress}">
+									<ComboBox xmlns="sap.m" value="{/workAddress}" items="{/companyAddress}" change=".fieldUpdateTriggers">
 										<items>
 											<core:Item xmlns:core="sap.ui.core" 
 													key="{Key}" 
@@ -87,11 +87,13 @@
 				</content>
 				<footer>
 					<OverflowToolbar id="toolbar-footer">
+						<FlexBox justifyContent="Start" ><Button text="👁" press=".toggleDetailedview"></Button></FlexBox>
 						<FlexBox 
 							alignItems="Center" 
 							justifyContent="Center"
 							 width="100%" >
 							<!-- <Button class="footerButton" text="{i18n>BACK_BUTTON_LABEL}" visible="{= !!${view>/isMobile} }"></Button> -->
+							
 							<Button class="footerButton" text="{i18n>COPY_NODES_BUTTON_LABEL}" press=".copyNodes" visible="{= !${view>/isMobile} }"></Button>
 							<Button class="footerButton" text="{i18n>REGISTER_IN_SAP_BUTTON_LABEL}" press=".successDialog(${i18n>REGISTER_IN_SAP_DIALOG})"></Button>
 						</FlexBox>

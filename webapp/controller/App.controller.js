@@ -112,6 +112,10 @@ sap.ui.define([
 					err => console.log("error copying text")
 				);
 		},
+		toggleDetailedview: function(){
+			var oModel = this.getView().getModel();
+			oModel.setProperty("/showDetailedView", !oModel.getProperty("/showDetailedView"));
+		},
 		calculateMilage : async function (){
 			function createDistance(startNode,destinationNode){
 				return {
@@ -120,8 +124,6 @@ sap.ui.define([
 					"Distance": destinationNode.Distance
 				}
 			}
-			
-			this.inputHelper();
 			
 			var oModel = this.getView().getModel();
 			var addressNodes = oModel.getProperty("/addressNodes");
@@ -174,6 +176,10 @@ sap.ui.define([
 
 				return response.json();
 		},
+		fieldUpdateTriggers: function(){
+			this.populateAllAddresses();
+			this.calculateMilage();
+		},
 		//Helper functions
 		populateAllAddresses: function () {
 			function onlyUnique(value, index, self) {
@@ -183,7 +189,11 @@ sap.ui.define([
 			var companyList = oModel.getProperty("/companyAddress") ? oModel.getProperty("/companyAddress") : [];
 			companyList.map(e => new Object({"Name": e.Name, "Address": e.MainAddress}))
 			var addressList = oModel.getProperty("/addressNodes") ? oModel.getProperty("/addressNodes") : [];
-			var uniqueList = companyList.concat(addressList).filter(onlyUnique)
+			var homeAddress = {
+				"Address": oModel.getProperty("/homeAddress"),
+				"Name": oModel.getProperty("/homeAddress")
+			}
+			var uniqueList = companyList.concat(addressList).concat(homeAddress).filter(onlyUnique)
 			oModel.setProperty("/allAddresses",uniqueList)
 		},
 		setInitState: function(){
@@ -319,6 +329,7 @@ sap.ui.define([
 			var oModel = this.getView().getModel();
 			var addressNodes = oModel.getProperty("/addressNodes");
 			var indexOfNode = addressNodes.map(e => e.Key).indexOf(nodeKey)
+			addressNodes[indexOfNode].Key = indexOfNode;
 			if (indexOfNode < 0) return;
 			// Update current node if we are not the first - first node is always distance 0
 			if(indexOfNode > 0) 
