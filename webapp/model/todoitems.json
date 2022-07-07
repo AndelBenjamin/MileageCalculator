@@ -1,7 +1,7 @@
 {
 	"newAddress": "",
 	"homeAddress": "",
-	"workAddress": "Teknikerbyen 25, 2830 Virum",
+	"workAddress": "Virum",
 	"workDistance": 0,
 	"andelMileageReport": 0,
 	"skatMileageReport": 0,
@@ -28,7 +28,7 @@
 	"allAddresses": [],
 	"companyAddress": [{
 		"Key": "Virum",
-		"Name": "Virum afdelingen",
+		"Name": "Virum",
 		"MainAddress": "Teknikerbyen 25, 2830 Virum",
 		"Addresses": [
 			{
@@ -47,7 +47,7 @@
 	}, 
 	{
 		"Key": "Haslev",
-		"Name": "Haslev afdelingen",
+		"Name": "Haslev",
 		"MainAddress": "Energivej 33, 4690 Haslev",
 		"Addresses": [
 			{
@@ -60,7 +60,7 @@
 	},
     {
 		"Key": "Svinninge",
-		"Name": "Svinninge afdelingen",
+		"Name": "Svinninge",
 		"MainAddress": "Hovedgaden 36, 4520 Svinninge",
 		"Addresses": [
 			{
