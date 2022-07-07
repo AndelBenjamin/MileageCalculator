@@ -29,7 +29,7 @@
                     alignItems="Center"
                     justifyContent="Center">
                         <Button text="{i18n>REMOVE_NODE_BUTTON_LABEL}" press=".removeAddressNode(${Key})"></Button>
-                        <!-- <ComboBox xmlns="sap.m" items="{/allAddresses}" value="{/newAddress}" selectedKey="{Key}" change=".updateDistance(${Key})">
+                        <ComboBox xmlns="sap.m" items="{/allAddresses}" value="{Name}" selectedKey="{Key}" change=".updateDistance(${Key})">
                             <items>
                                 <core:Item xmlns:core="sap.ui.core" 
                                         key="{Key}" 
@@ -37,8 +37,8 @@
                                         
                                         />
                             </items>
-                        </ComboBox> -->
-                        <Input class="todoInput" value="{Name}" placeholder="{i18n>ADDRESS_PLACEHOLDER}" change=".updateDistance(${Key})"/>
+                        </ComboBox>
+                        <!-- <Input class="todoInput" value="{Name}" placeholder="{i18n>ADDRESS_PLACEHOLDER}" change=".updateDistance(${Key})"/> -->
                         <Button class="currentLocationIcon" icon="./img/current-location.svg" press=".addCurrentGeolocation(${Key})" visible="{= !${Name}}">
                         </Button>
                 </FlexBox>
